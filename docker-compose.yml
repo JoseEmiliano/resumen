@@ -1,0 +1,38 @@
+services:
+  api:
+    build: .
+    container_name: tp_ntom_api
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      PORT: "${PORT:-3000}"
+      NODE_ENV: development
+      # Datos de conexión al búnker
+      DB_HOST: db
+      DB_USER: usuario_tp
+      DB_PASS: clave123
+      DB_NAME: resumen_db
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: tp_ntom_db
+    restart: always
+    environment:
+      POSTGRES_USER: usuario_tp
+      POSTGRES_PASSWORD: clave123
+      POSTGRES_DB: resumen_db
+      # PARCHE: Esto soluciona el error de TimeZone en DBeaver
+      TZ: "America/Buenos_Aires"
+    ports:
+      - "5432:5432" # Puerta de entrada para DBeaver desde Windows
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
